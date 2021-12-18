@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const userSchema = mongoos.Schema({
+const userSchema = mongoose.Schema({
     name:{
         type: String,
         maxlength: 50
@@ -12,11 +12,11 @@ const userSchema = mongoos.Schema({
     },
     password: {
         type: String,
-        maxlengnth: 5
+        maxlength: 15
     },
     lastname: {
         type: String,
-        maxlengnth: 50
+        maxlength: 50
     },
     role: {
         type: Number,
@@ -24,7 +24,7 @@ const userSchema = mongoos.Schema({
     },
     image: String,
     token:{
-        type: Spring
+        type: String
     },
     tokenExp:{
         type: Number
