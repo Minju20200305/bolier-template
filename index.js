@@ -26,7 +26,7 @@ app.post('/api/users/register', (req, res) =>{
 //그것을 데이터 베이스에 넣어준다
 
     const user = new User(req.body)
-    user.save((err, doc) => {
+    user.save((err, userInfo) => {
         if(err) return res.json({success: false, err})
         return res.status(200).json({
             success: true
@@ -73,8 +73,16 @@ app.get('/api/users/auth', auth, (req,res) => {
         role: req.user.role,
         image: req.user.image
     })
-
 })
+app.get('/api/users/logout', auth, (req, res) => {
+    User, findOneAndUpdate({_id: req.user._id},
+        { token: ""}
+        , (err, user) => {
+            if(err) return res.json({ success: false, err })
+            return res.status(200).send({
+                success: true
+            })
+        })})
 
 app.listen(port, () => {
 console.log(`Example app listening at http://localhost:${port}`)

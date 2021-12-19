@@ -35,11 +35,9 @@ const userSchema = mongoose.Schema({
     
 })
 
-userSchema.pre('save', function( next ) {
-    
-    
+userSchema.pre('save', function( next ) { 
     let user = this;
-    if(user.isModified('password')){
+    if(user.isModified('password')) {
     bcrypt.genSalt(saltRounds, function(err, salt){
         if(err) return next(err)
 
@@ -53,8 +51,6 @@ userSchema.pre('save', function( next ) {
     else{
         next()
     }
-
-
 })
 
 userSchema.methods.comparePassword = function(plainPassword, cb){
@@ -69,23 +65,24 @@ userSchema.methods.generateToken = function(cb){
     let user = this;
     //jsonwebtoken을 이용해서 토큰 생성
 
-    let token = jwt.sign(user._id.toHexString(), 'secretToken')
+    var token = jwt.sign(user._id.toHexString(), 'secretToken')
     // user._id + 'secretToken' = token
-    user.token = this.token
+    
+    user.token = token
     user.save(function(err, user){
         if(err) return cb(err)
         cb(null, user)
     })
 }
 
-userSchema.statics.findByTokwn = function(token, cd){
+userSchema.statics.findByToken = function(token, cb){
     let user = this;
     //토큰을 디코드 하는 법
-    user._id + '' = token;
+    // user._id + '' = token;
     jwt.verify(token,'secretToken', function(err, decoded){
         //유저 아이드를 이용해서 유저를 찾은 다음에 
         //클라이언트에서 가져온 token과 DB에 보관된 토큰이 일치하는지 확인
-        user.findOne({"_id: decoded", "token": token}, function(err, user){
+        user.findOne({"_id": decoded, "token": token}, function(err, user){
             if(err) return cb(err);
             cb(null, user)
         })
