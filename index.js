@@ -3,9 +3,8 @@ const app = express()
 const port = 5000
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
-
 const config = require('./config/key')
-
+const { auth } = require('./middleware/auth')
 const { User } = require('./models/User')
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -22,31 +21,27 @@ res.send('Hello World!')
 })
 
 
-app.post('/register', (req, res) =>{
+app.post('/api/users/register', (req, res) =>{
 //회원가입에 필요한 정보들을 클라이언트에서 가져오면
 //그것을 데이터 베이스에 넣어준다
 
     const user = new User(req.body)
     user.save((err, doc) => {
-
         if(err) return res.json({success: false, err})
-    
         return res.status(200).json({
             success: true
         })
         })
-
 })
 
 
-app.post('/login', (req, res) => {
+app.post('/api/users/login', (req, res) => {
 //요청된 이메일은 데이터 베이스에서 찾는다
 User.findOne({ email: req.body.email }, (err, user) =>{
     if(!user) {
         return res.json({
             loginSuccess: false,
             message: "제공된 이메일에 해당하는 유저가 없습니다"
-
         })
     }
     user.comparePassword(req.body.password, (err, isMatch) => {
@@ -62,13 +57,24 @@ User.findOne({ email: req.body.email }, (err, user) =>{
             .json({ loginSuccess: true, userId: user._id})
             
         })
-
-
 })
 })
-
 })
 //비밀번호까지 맞다면 토큰 생성.
+app.get('/api/users/auth', auth, (req,res) => {
+    //여기까지 미들웨어를 통과해 왔다는 얘기는 Authentification이 true인 경우
+    res.status(200).json({
+        _id: req.user._id,
+        isAdmin: req.user.role == 0 ? false : true,
+        isAuth: true, 
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role,
+        image: req.user.image
+    })
+
+})
 
 app.listen(port, () => {
 console.log(`Example app listening at http://localhost:${port}`)
